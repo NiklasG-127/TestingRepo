@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Socket.IO-Verbindung
     const socket = io('https://testingbackendrepo.onrender.com/quizAPI', {
         transports: ['websocket'], // Bevorzugt den WebSocket-Transport
-        path: '/socket.io'         // Standard-Pfad zu Socket.IO
+        path: 'quizAPI/socket.io'         // Standard-Pfad zu Socket.IO
     });
 
     // Funktionen für Event-Listener
