@@ -1,4 +1,8 @@
-const socket = io('https://testingbackendrepo.onrender.com/quizAPI');
+const socket = io('https://testingbackendrepo.onrender.com/quizAPI', {
+    transports: ['websocket'], // Bevorzugt den WebSocket-Transport
+    path: '/socket.io'         // Standard-Pfad zu Socket.IO
+});
+
 
 const msgInput = document.querySelector('#message');
 const nameInput = document.querySelector('#name');
