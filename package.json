@@ -17,5 +17,8 @@
     "url": "https://github.com/NiklasG-127/TestingRepo/issues"
   },
   "homepage": "https://github.com/NiklasG-127/TestingRepo#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "socket.io": "^4.8.1"
+  }
 }
