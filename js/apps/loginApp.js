@@ -14,7 +14,7 @@ const Login =  Vue.createApp ({
             this.error = null;
             this.loading = true;
 
-            fetch('https://testingbackendrepo.onrender.com/api/register', {
+            fetch('https://testingbackendrepo.onrender.com/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
