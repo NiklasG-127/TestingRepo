@@ -1,5 +1,3 @@
-import {io} from "socket.io-client";
-
 const token = sessionStorage.getItem('token');
 const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
     query: {token}
