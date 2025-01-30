@@ -1,0 +1,46 @@
+const Register =  Vue.createApp ({
+    data() {
+        return {
+            username: '',
+            password: '',
+            error: null,
+            loading: false,
+        };
+    },
+
+    methods: {
+        // Methode zum Abrufen der Daten von der API
+        handleRegister() {
+            this.error = null;
+            this.loading = true;
+
+            fetch('https://testingbackendrepo.onrender.com/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username: this.username, password: this.password }),
+            })
+
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    sessionStorage.setItem('token', data.token);
+                    this.message = 'Daten erfolgreich geladen!';
+                    //this.$router.push('../index.html');
+                    window.location.href = '../index.html';
+                })
+                .catch(error => {
+                    console.error('Anmeldedaten nicht korrekt', error);
+                    this.error = true;
+                    //alert('Anmeldedaten nicht korrekt');
+                })
+                .finally(() => {
+                    this.loading = false;
+                });
+        }
+    }
+});
+
+Register.mount('#RegisterForm');
