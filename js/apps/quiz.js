@@ -1,4 +1,9 @@
-const socket = io('https://testingbackendrepo.onrender.com/quizAPI');
+import {io} from "socket.io-client";
+
+const token = sessionStorage.getItem('token');
+const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
+    query: {token}
+});
 
 const msgInput = document.querySelector('#message');
 const nameInput = document.querySelector('#name');
@@ -38,10 +43,12 @@ function changeRoom(e){
 
 function enterRoom(e) {
     e.preventDefault();
+    const token = sessionStorage.getItem('token');
     if (nameInput.value && chatRoom.value) {
         socket.emit('enterRoom', {
             name: nameInput.value,
-            room: chatRoom.value
+            room: chatRoom.value,
+            token: token
         });
     }
 }
