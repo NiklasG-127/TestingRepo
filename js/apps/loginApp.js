@@ -11,6 +11,7 @@ const Login =  Vue.createApp ({
     methods: {
         // Methode zum Abrufen der Daten von der API
         handleLogin() {
+            console.log(JSON.stringify({ username: this.username, password: this.password }))
             this.error = null;
             this.loading = true;
 
