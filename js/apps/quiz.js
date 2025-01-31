@@ -16,9 +16,9 @@ const questionCountInput = document.querySelector('#questionCount');
 
 function sendMessage(e) {
     e.preventDefault();
-    if (nameInput.value && msgInput.value && chatRoom.value) {
+    if (getUsernameFromToken() && msgInput.value && chatRoom.value) {
         socket.emit('message', {
-            name: nameInput.value,
+            name: getUsernameFromToken(),
             text: msgInput.value
         });
         msgInput.value = "";
@@ -58,8 +58,12 @@ document.querySelector('.form-join')
     .addEventListener('submit', enterRoom);
 
 msgInput.addEventListener('keypress', () => {
-    socket.emit('activity', nameInput.value);
+    const username = getUsernameFromToken();
+    if (username) {
+        socket.emit('activity', username);
+    }
 });
+
 
 // Listen for messages
 socket.on("message", (data) => {
@@ -67,10 +71,10 @@ socket.on("message", (data) => {
     const { name, text, time } = data;
     const li = document.createElement('li');
     li.className = 'post';
-    if (name === nameInput.value) li.className = 'post post--left';
-    if (name !== nameInput.value && name !== 'Admin') li.className = 'post post--right';
+    if (name === getUsernameFromToken()) li.className = 'post post--left';
+    if (name !== getUsernameFromToken() && name !== 'Admin') li.className = 'post post--right';
     if (name !== 'Admin') {
-        li.innerHTML = `<div class="post__header ${name === nameInput.value
+        li.innerHTML = `<div class="post__header ${name === getUsernameFromToken()
             ? 'post__header--user'
             : 'post__header--reply'
         }">
@@ -194,6 +198,15 @@ socket.on('failedToken', ()=>{
 })
 
 
+function getUsernameFromToken() {
+    const token = sessionStorage.getItem('token');
+    if (!token) return null;
 
-
-
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1])); // Dekodiere den Payload
+        return payload.username; // Passe dies an, falls der Benutzername unter einem anderen Schlüssel gespeichert ist
+    } catch (error) {
+        console.error('Fehler beim Dekodieren des Tokens:', error);
+        return null;
+    }
+}
