@@ -42,9 +42,8 @@ function changeRoom(e){
 function enterRoom(e) {
     e.preventDefault();
     const token = sessionStorage.getItem('token');
-    if (nameInput.value && chatRoom.value) {
+    if (chatRoom.value) {
         socket.emit('enterRoom', {
-            name: nameInput.value,
             room: chatRoom.value,
             token: token
         });
