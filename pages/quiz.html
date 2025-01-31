@@ -3,40 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>IU Quiz</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.min.js" integrity="sha512-8ExARjWWkIllMlNzVg7JKq9RKWPlJABQUNq6YvAjE/HobctjH/NA+bSiDMDvouBVjp4Wwnf1VP1OEv7Zgjtuxw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script defer type="module" src="../js/apps/quiz.js"></script>
+    <style>
+        .chat-display {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .post {
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 5px;
+            max-width: 75%;
+        }
+
+        .post--left {
+            background: #0d6efd;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .post--right {
+            background: #e9ecef;
+            color: black;
+            align-self: flex-start;
+        }
+
+        .admin-message {
+            background: #ffc107;
+            color: black;
+            text-align: center;
+            max-width: 90%;
+        }
+    </style>
 </head>
-<body>
-<main>
-    <form class="form-join">
-        <input type="text" id="room" placeholder="Chat room" size="5" required>
-        <button id="join" type="submit">Join</button>
+<body class="bg-light">
+<main class="container mt-4">
+    <form class="form-join d-flex gap-2">
+        <input type="text" id="room" class="form-control" placeholder="Chat room" required>
+        <button id="join" type="submit" class="btn btn-primary">Join</button>
     </form>
 
-    <ul class="chat-display"></ul>
+    <div class="chat-box border rounded p-3 mt-3 bg-white overflow-auto" style="max-height: 300px; overflow-y: scroll;">
+        <ul class="chat-display list-unstyled mb-0"></ul>
+    </div>
 
-    <p class="user-list"></p>
+
+    <p class="user-list mt-2"></p>
 
     <p class="room-list"></p>
 
-    <p class="activity"></p>
+    <p class="activity text-muted"></p>
 
-    <form class="form-msg">
-        <input type="text" id="message" placeholder="Your message" required>
-        <button type="submit">Send</button>
+    <form class="form-msg d-flex gap-2 mt-2">
+        <input type="text" id="message" class="form-control" placeholder="Your message" required>
+        <button type="submit" class="btn btn-primary">Send</button>
     </form>
-    <form class="form-room">
-        <input type="text" id="category" placeholder="Your category" required>
-        <input type="text" id="questionCount" placeholder="Your category" required>
-        <button type="submit">Send</button>
+    <form class="form-room d-flex gap-2 mt-3">
+        <input type="text" id="category" class="form-control" placeholder="Kategorie" required>
+        <input type="text" id="questionCount" class="form-control" placeholder="Anzahl Fragen" required>
+        <button type="submit" class="btn btn-warning">Send</button>
     </form>
 
-    <div id="question-display"></div>
-    <div id="answer-display"></div>
+    <div id="question-display" class="alert alert-info mt-3"></div>
+    <div id="answer-display" class="d-flex flex-wrap gap-2 mt-2"></div>
 
-    <div id="score-display"></div>
+    <div id="score-display" class="mt-3"></div>
 
 </main>
 </body>
