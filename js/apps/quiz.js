@@ -190,6 +190,10 @@ socket.on('quizOver', (data) => {
     }
 });
 
+socket.on('failedToken', ()=>{
+    window.location.href="/login";
+})
+
 
 
 
