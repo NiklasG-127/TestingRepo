@@ -4,7 +4,6 @@ const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
 });
 
 const msgInput = document.querySelector('#message');
-const nameInput = document.querySelector('#name');
 const chatRoom = document.querySelector('#room');
 const activity = document.querySelector('.activity');
 const usersList = document.querySelector('.user-list');
