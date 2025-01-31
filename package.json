@@ -19,6 +19,7 @@
   "homepage": "https://github.com/NiklasG-127/TestingRepo#readme",
   "description": "",
   "dependencies": {
+    "bootstrap": "^5.3.3",
     "socket.io-client": "^4.8.1"
   }
 }
