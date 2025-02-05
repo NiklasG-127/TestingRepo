@@ -24,6 +24,11 @@ const questionDisplay = document.getElementById('question-display');
 const answerDisplay = document.getElementById('answer-display');
 const scoreDisplay = document.getElementById('score-display');
 
+// DOM-Elemente für den Chat im Raum
+const msgForm = document.querySelector('.form-msg');
+const msgInput = document.getElementById('message');
+const chatDisplay = document.querySelector('.chat-display');
+
 // Globale Variablen, um Quiz-Parameter zu speichern (wird beim Raum-Erstellen gesetzt)
 let roomCategory = null;
 let roomQuestionCount = null;
@@ -54,7 +59,7 @@ createRoomForm.addEventListener('submit', (e) => {
         questionCount: questionCount
     });
 
-    // Optional: Formularfelder leeren
+    // Formularfelder leeren
     roomNameInput.value = '';
     categoryInput.value = '';
     questionCountInput.value = '';
@@ -65,7 +70,9 @@ createRoomForm.addEventListener('submit', (e) => {
     roomTitle.textContent = `Raum: ${roomName}`;
 });
 
-// Raum-Ansicht: Quiz starten
+/**
+ * Raum-Ansicht: Quiz starten
+ */
 startQuizBtn.addEventListener('click', () => {
     if (roomCategory && roomQuestionCount) {
         socket.emit('startQuiz', {
@@ -77,7 +84,22 @@ startQuizBtn.addEventListener('click', () => {
     }
 });
 
-// Aktualisiere die Liste aktiver Räume, wenn der Server ein Update sendet
+/**
+ * Chat: Nachricht senden
+ * Hier wird das Standardverhalten des Formulars unterbunden, sodass die Seite nicht neu geladen wird.
+ */
+msgForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = msgInput.value.trim();
+    if (!message) return;
+    // Sende die Nachricht an das Backend
+    socket.emit('message', { name: getUsernameFromToken(), text: message });
+    msgInput.value = '';
+});
+
+/**
+ * Aktualisiere die Liste aktiver Räume
+ */
 socket.on('roomList', ({ rooms }) => {
     roomListElem.textContent = '';
     if (rooms && rooms.length > 0) {
@@ -87,7 +109,9 @@ socket.on('roomList', ({ rooms }) => {
     }
 });
 
-// Empfang der Frage vom Server und Anzeige in der Raum-Ansicht
+/**
+ * Empfang der Frage vom Server und Anzeige in der Raum-Ansicht
+ */
 socket.on('question', (data) => {
     const { question_id, question } = data;
     if (questionDisplay) {
@@ -99,7 +123,9 @@ socket.on('question', (data) => {
     }
 });
 
-// Anzeige der Antwortmöglichkeiten als Buttons
+/**
+ * Anzeige der Antwortmöglichkeiten als Buttons
+ */
 socket.on('answers', (data) => {
     if (answerDisplay) {
         answerDisplay.innerHTML = '';
@@ -120,16 +146,19 @@ socket.on('answers', (data) => {
     }
 });
 
-// Empfang der ausgewerteten Antwort (Richtig/Falsch) und Aktualisierung des Scores
+/**
+ * Empfang der ausgewerteten Antwort (Richtig/Falsch) und Aktualisierung des Scores
+ */
 socket.on('evaluatedAnswer', (data) => {
     // data enthält { correct, message, score }
     if (scoreDisplay) {
         scoreDisplay.textContent = `Score: ${data.score}`;
     }
-    // Der Server steuert den Ablauf und löst "nextQuestion" aus, wenn alle geantwortet haben.
 });
 
-// Anzeige, wenn das Quiz beendet ist – Übersicht der Scores
+/**
+ * Anzeige, wenn das Quiz beendet ist – Übersicht der Scores
+ */
 socket.on('quizOver', (data) => {
     if (scoreDisplay) {
         scoreDisplay.innerHTML = '<h3>Quiz beendet!</h3>';
@@ -141,12 +170,35 @@ socket.on('quizOver', (data) => {
     }
 });
 
-// Empfang von allgemeinen Nachrichten (z. B. vom Admin) – hier einfach in der Konsole protokolliert
+/**
+ * Empfang von Chat- und Systemnachrichten
+ * Die empfangenen Nachrichten werden in der Chat-Box angezeigt.
+ */
 socket.on('message', (data) => {
-    console.log(`[${data.time}] ${data.name}: ${data.text}`);
+    const li = document.createElement('li');
+    li.textContent = `[${data.time}] ${data.name}: ${data.text}`;
+    chatDisplay.appendChild(li);
+    // Automatisch nach unten scrollen
+    chatDisplay.scrollTop = chatDisplay.scrollHeight;
 });
 
-// Bei Token-Fehler: Weiterleitung zurück zur Login-/Startseite
+/**
+ * Bei Token-Fehler: Weiterleitung zurück zur Login-/Startseite
+ */
 socket.on('failedToken', () => {
     window.location.href = '../index.html';
 });
+
+/**
+ * Hilfsfunktion: Extrahiert den Benutzernamen aus dem Token
+ */
+function getUsernameFromToken() {
+    if (!token) return 'Anonymous';
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.username || 'Anonymous';
+    } catch (e) {
+        console.error('Fehler beim Dekodieren des Tokens:', e);
+        return 'Anonymous';
+    }
+}
