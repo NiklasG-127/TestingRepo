@@ -3,19 +3,75 @@ const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
     query: {token}
 });
 
-const msgInput = document.querySelector('#message');
-const chatRoom = document.querySelector('#room');
-const activity = document.querySelector('.activity');
-const usersList = document.querySelector('.user-list');
-const roomList = document.querySelector('.room-list');
+//DOM-Elemente für Lobby und Raum
+const lobbyView = document.getElementById('lobby-view');
+const roomView = document.getElementById('room-view');
+const roomTitle = document.getElementById('room-title');
+const roomListElement = document.querySelector('.room-list');
+
+//Elemente fürs Raumerstellen formular in Lobby
+const roomNameInput = document.getElementById('roomName')
+const categoryInput = document.getElementById('category');
+const questionCountInput = document.getElementById('questionCount');
+const createRoomForm = document.querySelector('.form-create-room');
+
+//Element des 'Quiz Starten' Button in Raum view
+const startQuizBtn = document.getElementById('start-quiz');
+
+// Anzeigeelemente für Fragen, Antworten und Punktestand
+const questionDisplay = document.getElementById('question-display');
+const answerDisplay = document.getElementById('answer-display');
+const scoreDisplay = document.getElementById('score-display');
+
+// DOM-Elemente für den Chat im Raum
+const msgForm = document.querySelector('.form-msg');
+const msgInput = document.getElementById('message');
 const chatDisplay = document.querySelector('.chat-display');
 
-const categoryInput = document.querySelector('#category');
-const questionCountInput = document.querySelector('#questionCount');
+const msgInput = document.querySelector('#message');
+// const chatRoom = document.querySelector('#room');
+// const activity = document.querySelector('.activity');
+// const usersList = document.querySelector('.user-list');
+// const roomList = document.querySelector('.room-list');
+// const chatDisplay = document.querySelector('.chat-display');
+//
+// const categoryInput = document.querySelector('#category');
+// const questionCountInput = document.querySelector('#questionCount');
+
+
+//Create Room
+createRoomForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const roomName = roomNameInput.value.trim();
+    const category = categoryInput.value.trim();
+    const questionCount = questionCountInput.value.trim();
+
+    if (!roomName || !category || !questionCount) return;
+
+    // Sende alle Daten an das Backend: Raum, Token, Kategorie und Frageanzahl
+    socket.emit('enterRoom', {
+        room: roomName,
+        token: token,
+        category: category,
+        questionCount: questionCount
+    });
+
+    // Formularfelder leeren
+    roomNameInput.value = '';
+    categoryInput.value = '';
+    questionCountInput.value = '';
+
+    // Wechsel zur Raum-Ansicht: Lobby ausblenden, Raum anzeigen
+    lobbyView.classList.add('d-none');
+    roomView.classList.remove('d-none');
+    roomTitle.textContent = `Raum: ${roomName}`;
+});
+
 
 function sendMessage(e) {
     e.preventDefault();
-    if (getUsernameFromToken() && msgInput.value && chatRoom.value) {
+    if (getUsernameFromToken() && msgInput.value) {
         socket.emit('message', {
             name: getUsernameFromToken(),
             text: msgInput.value
@@ -25,32 +81,26 @@ function sendMessage(e) {
     msgInput.focus();
 }
 
-function changeRoom(e){
-    e.preventDefault()
-    console.log(categoryInput.value)
-    socket.emit('startQuiz', {
-        questionCount: parseInt(questionCountInput.value),
-        category: categoryInput.value
 
+//Start Quiz
+startQuizBtn.addEventListener('click', () => {
+    socket.emit('startQuiz');
     });
-    categoryInput.value=""
-}
-
 
 
 function enterRoom(e) {
     e.preventDefault();
     const token = sessionStorage.getItem('token');
-    if (chatRoom.value) {
+    if (roomNameInput.value) {
         socket.emit('enterRoom', {
-            room: chatRoom.value,
+            room: roomNameInput.value,
             token: token
         });
     }
 }
 
 document.querySelector('.form-room')
-    .addEventListener('submit', changeRoom);
+    .addEventListener('submit', createRoom);
 document.querySelector('.form-msg')
     .addEventListener('submit', sendMessage);
 document.querySelector('.form-join')
