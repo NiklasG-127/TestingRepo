@@ -19,6 +19,11 @@
         .room-list {
             font-style: italic;
         }
+        /* Chat-Bereich: max Höhe und Scroll */
+        .chat-box {
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -43,7 +48,20 @@
         <h2 id="room-title"></h2>
         <button id="start-quiz" class="btn btn-primary">Quiz Starten</button>
 
-        <!-- Anzeige für Quizfragen, Antworten und Score -->
+        <!-- Chat-Bereich -->
+        <div class="chat-section mt-3">
+            <div class="chat-box border rounded p-3 bg-white">
+                <ul class="chat-display list-unstyled mb-0"></ul>
+            </div>
+            <p class="user-list mt-2"></p>
+            <p class="activity text-muted"></p>
+            <form class="form-msg d-flex gap-2 mt-2">
+                <input type="text" id="message" class="form-control" placeholder="Deine Nachricht" required>
+                <button type="submit" class="btn btn-primary">Senden</button>
+            </form>
+        </div>
+
+        <!-- Quiz-Anzeige -->
         <div id="question-display" class="alert alert-info mt-3"></div>
         <div id="answer-display" class="d-flex flex-wrap gap-2 mt-2"></div>
         <div id="score-display" class="mt-3"></div>
