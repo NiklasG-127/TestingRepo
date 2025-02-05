@@ -1,204 +1,211 @@
-// quiz.js
-
-// Token aus dem Session Storage abrufen und Socket.IO verbinden
 const token = sessionStorage.getItem('token');
-const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', { query: { token } });
+const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
+    query: {token}
+});
 
-// DOM-Elemente für die Lobby- und Raumansichten
-const lobbyView = document.getElementById('lobby-view');
-const roomView = document.getElementById('room-view');
-const roomTitle = document.getElementById('room-title');
-const roomListElem = document.querySelector('.room-list');
-
-// Elemente des "Raum erstellen"-Formulars in der Lobby
-const roomNameInput = document.getElementById('roomName');
-const categoryInput = document.getElementById('category');
-const questionCountInput = document.getElementById('questionCount');
-const createRoomForm = document.querySelector('.form-create-room');
-
-// Element des "Quiz Starten"-Buttons in der Raum-Ansicht
-const startQuizBtn = document.getElementById('start-quiz');
-
-// Anzeigeelemente für Fragen, Antworten und Punktestand
-const questionDisplay = document.getElementById('question-display');
-const answerDisplay = document.getElementById('answer-display');
-const scoreDisplay = document.getElementById('score-display');
-
-// DOM-Elemente für den Chat im Raum
-const msgForm = document.querySelector('.form-msg');
-const msgInput = document.getElementById('message');
+const msgInput = document.querySelector('#message');
+const chatRoom = document.querySelector('#room');
+const activity = document.querySelector('.activity');
+const usersList = document.querySelector('.user-list');
+const roomList = document.querySelector('.room-list');
 const chatDisplay = document.querySelector('.chat-display');
 
-// Globale Variablen, um Quiz-Parameter zu speichern (wird beim Raum-Erstellen gesetzt)
-let roomCategory = null;
-let roomQuestionCount = null;
+const categoryInput = document.querySelector('#category');
+const questionCountInput = document.querySelector('#questionCount');
 
-/**
- * Lobby: Raum erstellen und beitreten
- * Hier werden der Raumname, die Kategorie und die Anzahl der Fragen ausgelesen und
- * zusammen mit dem Token an das Backend per "enterRoom"-Event gesendet.
- */
-createRoomForm.addEventListener('submit', (e) => {
+function sendMessage(e) {
     e.preventDefault();
+    if (getUsernameFromToken() && msgInput.value && chatRoom.value) {
+        socket.emit('message', {
+            name: getUsernameFromToken(),
+            text: msgInput.value
+        });
+        msgInput.value = "";
+    }
+    msgInput.focus();
+}
 
-    const roomName = roomNameInput.value.trim();
-    const category = categoryInput.value.trim();
-    const questionCount = questionCountInput.value.trim();
+function changeRoom(e){
+    e.preventDefault()
+    console.log(categoryInput.value)
+    socket.emit('startQuiz', {
+        questionCount: parseInt(questionCountInput.value),
+        category: categoryInput.value
 
-    if (!roomName || !category || !questionCount) return;
-
-    // Speichere die Quiz-Parameter global, damit sie später für den Start genutzt werden können
-    roomCategory = category;
-    roomQuestionCount = questionCount;
-
-    // Sende alle Daten an das Backend: Raum, Token, Kategorie und Frageanzahl
-    socket.emit('enterRoom', {
-        room: roomName,
-        token: token,
-        category: category,
-        questionCount: questionCount
     });
+    categoryInput.value=""
+}
 
-    // Formularfelder leeren
-    roomNameInput.value = '';
-    categoryInput.value = '';
-    questionCountInput.value = '';
 
-    // Wechsel zur Raum-Ansicht: Lobby ausblenden, Raum anzeigen
-    lobbyView.classList.add('d-none');
-    roomView.classList.remove('d-none');
-    roomTitle.textContent = `Raum: ${roomName}`;
-});
 
-/**
- * Raum-Ansicht: Quiz starten
- */
-startQuizBtn.addEventListener('click', () => {
-    if (roomCategory && roomQuestionCount) {
-        socket.emit('startQuiz', {
-            category: roomCategory,
-            questionCount: roomQuestionCount
-        });
-    } else {
-        alert('Quiz-Parameter fehlen!');
-    }
-});
-
-/**
- * Chat: Nachricht senden
- * Hier wird das Standardverhalten des Formulars unterbunden, sodass die Seite nicht neu geladen wird.
- */
-msgForm.addEventListener('submit', (e) => {
+function enterRoom(e) {
     e.preventDefault();
-    const message = msgInput.value.trim();
-    if (!message) return;
-    // Sende die Nachricht an das Backend
-    socket.emit('message', { name: getUsernameFromToken(), text: message });
-    msgInput.value = '';
-});
-
-/**
- * Aktualisiere die Liste aktiver Räume
- */
-socket.on('roomList', ({ rooms }) => {
-    roomListElem.textContent = '';
-    if (rooms && rooms.length > 0) {
-        roomListElem.innerHTML = `<em>${rooms.join(', ')}</em>`;
-    } else {
-        roomListElem.textContent = 'Keine aktiven Räume vorhanden.';
-    }
-});
-
-/**
- * Empfang der Frage vom Server und Anzeige in der Raum-Ansicht
- */
-socket.on('question', (data) => {
-    const { question_id, question } = data;
-    if (questionDisplay) {
-        questionDisplay.textContent = `Frage: ${question}`;
-    }
-    // Sobald eine Frage empfangen wurde, nach den Antwortmöglichkeiten fragen
-    if (question_id !== undefined) {
-        socket.emit('askForAnswers', { question_id });
-    }
-});
-
-/**
- * Anzeige der Antwortmöglichkeiten als Buttons
- */
-socket.on('answers', (data) => {
-    if (answerDisplay) {
-        answerDisplay.innerHTML = '';
-        data.forEach(answer => {
-            const answerBtn = document.createElement('button');
-            answerBtn.textContent = answer.answer;
-            answerBtn.classList.add('btn', 'btn-outline-primary', 'm-1');
-            answerBtn.setAttribute('data-answer-id', answer.answer_id);
-            answerBtn.setAttribute('data-question-id', answer.question_id);
-            answerBtn.addEventListener('click', () => {
-                socket.emit('submitAnswer', {
-                    playerAnswer: answer.answer_id,
-                    question_id: answer.question_id
-                });
-            });
-            answerDisplay.appendChild(answerBtn);
+    const token = sessionStorage.getItem('token');
+    if (chatRoom.value) {
+        socket.emit('enterRoom', {
+            room: chatRoom.value,
+            token: token
         });
     }
-});
+}
 
-/**
- * Empfang der ausgewerteten Antwort (Richtig/Falsch) und Aktualisierung des Scores
- */
-socket.on('evaluatedAnswer', (data) => {
-    // data enthält { correct, message, score }
-    if (scoreDisplay) {
-        scoreDisplay.textContent = `Score: ${data.score}`;
+document.querySelector('.form-room')
+    .addEventListener('submit', changeRoom);
+document.querySelector('.form-msg')
+    .addEventListener('submit', sendMessage);
+document.querySelector('.form-join')
+    .addEventListener('submit', enterRoom);
+
+msgInput.addEventListener('keypress', () => {
+    const username = getUsernameFromToken();
+    if (username) {
+        socket.emit('activity', username);
     }
 });
 
-/**
- * Anzeige, wenn das Quiz beendet ist – Übersicht der Scores
- */
-socket.on('quizOver', (data) => {
-    if (scoreDisplay) {
-        scoreDisplay.innerHTML = '<h3>Quiz beendet!</h3>';
-        data.forEach(userScore => {
-            const scoreElem = document.createElement('div');
-            scoreElem.textContent = `Name: ${userScore.name} - Score: ${userScore.score}`;
-            scoreDisplay.appendChild(scoreElem);
-        });
-    }
-});
 
-/**
- * Empfang von Chat- und Systemnachrichten
- * Die empfangenen Nachrichten werden in der Chat-Box angezeigt.
- */
-socket.on('message', (data) => {
+// Listen for messages
+socket.on("message", (data) => {
+    activity.textContent = "";
+    const { name, text, time } = data;
     const li = document.createElement('li');
-    li.textContent = `[${data.time}] ${data.name}: ${data.text}`;
-    chatDisplay.appendChild(li);
-    // Automatisch nach unten scrollen
+    li.className = 'post';
+    if (name === getUsernameFromToken()) li.className = 'post post--left';
+    if (name !== getUsernameFromToken() && name !== 'Admin') li.className = 'post post--right';
+    if (name !== 'Admin') {
+        li.innerHTML = `<div class="post__header ${name === getUsernameFromToken()
+            ? 'post__header--user'
+            : 'post__header--reply'
+        }">
+        <span class="post__header--name">${name}</span> 
+        <span class="post__header--time">${time}</span> 
+        </div>
+        <div class="post__text">${text}</div>`;
+    } else {
+        li.innerHTML = `<div class="post__text">${text}</div>`;
+    }
+    document.querySelector('.chat-display').appendChild(li);
+
     chatDisplay.scrollTop = chatDisplay.scrollHeight;
 });
 
-/**
- * Bei Token-Fehler: Weiterleitung zurück zur Login-/Startseite
- */
-socket.on('failedToken', () => {
-    window.location.href = '../index.html';
+let activityTimer;
+socket.on("activity", (name) => {
+    activity.textContent = `${name} is typing...`;
+
+    // Clear after 3 seconds
+    clearTimeout(activityTimer);
+    activityTimer = setTimeout(() => {
+        activity.textContent = "";
+    }, 3000);
 });
 
-/**
- * Hilfsfunktion: Extrahiert den Benutzernamen aus dem Token
- */
+// User- und Raum-Listen aktualisieren
+socket.on('userList', ({ users }) => {
+    showUsers(users);
+});
+
+socket.on('roomList', ({ rooms }) => {
+    showRooms(rooms);
+});
+
+function showUsers(users) {
+    usersList.textContent = '';
+    if (users) {
+        usersList.innerHTML = `<em>Users in ${chatRoom.value}:</em>`;
+        users.forEach((user, i) => {
+            usersList.textContent += ` ${user.name}`;
+            if (users.length > 1 && i !== users.length - 1) {
+                usersList.textContent += ",";
+            }
+        });
+    }
+}
+
+function showRooms(rooms) {
+    roomList.textContent = '';
+    if (rooms) {
+        roomList.innerHTML = '<em>Active Rooms:</em>';
+        rooms.forEach((room, i) => {
+            roomList.textContent += ` ${room}`;
+            if (rooms.length > 1 && i !== rooms.length - 1) {
+                roomList.textContent += ",";
+            }
+        });
+    }
+}
+
+socket.on('question', (data)=> {
+    const {question_id, question} = data
+    console.log(data)
+    const questionDisplay = document.getElementById('question-display')
+    if(questionDisplay){
+        questionDisplay.textContent = '';
+        questionDisplay.textContent = `Frage: ${question}`
+    }
+    if (question_id !== undefined) {
+        socket.emit('askForAnswers', { question_id });
+    } else {
+        console.log('question_id ist undefined');
+    }
+})
+
+socket.on('answers', (data) => {
+    console.log('Client: Antworten:', data)
+    const answerDisplay = document.getElementById('answer-display')
+    if (answerDisplay) {
+        // Alle Antworten anzeigen
+        answerDisplay.innerHTML = ''
+        data.forEach(answer => {
+            const answerElement = document.createElement('button')
+            answerElement.textContent = `Antwort: ${answer.answer}`
+            answerElement.setAttribute('data-answer-id', answer.answer_id)
+            answerElement.setAttribute('data-question-id', answer.question_id)
+            answerElement.addEventListener('click', (event) => {
+                const playerAnswer = event.target.getAttribute('data-answer-id');
+                const question_id = event.target.getAttribute('data-question-id');
+                console.log('Antwort-ID:', playerAnswer, 'Frage-ID:', question_id); // Logge die IDs
+                socket.emit('submitAnswer', { playerAnswer, question_id });
+            })
+
+            answerDisplay.appendChild(answerElement)
+        })
+    }
+})
+
+socket.on('evaluatedAnswer', (data)=>{
+    console.log('Ev Antwort:', data)
+    const{ correct, message, score } =data
+    //Prototype
+    socket.emit('nextQuestion')
+})
+
+
+socket.on('quizOver', (data) => {
+    const scoreDisplay = document.getElementById('score-display');
+    if (scoreDisplay) {
+        data.forEach(u => {
+            const scoreElement = document.createElement('div');
+            scoreElement.textContent = `Name: ${u.name} Score: ${u.score}`;
+            scoreDisplay.appendChild(scoreElement);
+        });
+    }
+});
+//Test Comment
+socket.on('failedToken', ()=>{
+    window.location.href = '../index.html';
+})
+
+
 function getUsernameFromToken() {
-    if (!token) return 'Anonymous';
+    const token = sessionStorage.getItem('token');
+    if (!token) return null;
+
     try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.username || 'Anonymous';
-    } catch (e) {
-        console.error('Fehler beim Dekodieren des Tokens:', e);
-        return 'Anonymous';
+        const payload = JSON.parse(atob(token.split('.')[1])); // Dekodiere den Payload
+        return payload.username; // Passe dies an, falls der Benutzername unter einem anderen Schlüssel gespeichert ist
+    } catch (error) {
+        console.error('Fehler beim Dekodieren des Tokens:', error);
+        return null;
     }
 }
