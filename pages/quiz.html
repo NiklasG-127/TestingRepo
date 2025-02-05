@@ -9,10 +9,11 @@
     <script defer type="module" src="../js/apps/quiz.js"></script>
     <style>
         .chat-display {
-            max-height: 250px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Gemeinsame Stile für Nachrichten */
         .post {
             padding: 10px;
             border-radius: 15px;
@@ -20,17 +21,20 @@
             max-width: 75%;
         }
 
+        /* Eigene Nachrichten: blau und links ausgerichtet */
         .post--left {
             background: #0d6efd;
             color: white;
-            align-self: flex-end;
+            align-self: flex-start; /* links */
         }
 
+        /* Nachrichten von anderen: grau und rechts ausgerichtet */
         .post--right {
             background: #e9ecef;
             color: black;
-            align-self: flex-start;
+            align-self: flex-end; /* rechts */
         }
+
 
         .admin-message {
             background: #ffc107;
