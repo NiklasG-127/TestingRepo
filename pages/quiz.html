@@ -13,16 +13,54 @@
     <!-- Frontend JS -->
     <script defer type="module" src="../js/apps/quiz.js"></script>
     <style>
-        /* Hilfsklasse, um Elemente auszublenden */
-        .d-none { display: none; }
-        /* Stil für die Raumliste */
-        .room-list {
-            font-style: italic;
+        /* Stil für die gesamte Tabelle */
+        table {
+            width: 100%;                      /* Maximale Breite für die Tabelle */
+            margin-bottom: 1rem;               /* Abstand zum unteren Bereich */
+            background-color: #fff;            /* Weißer Hintergrund für die Tabelle */
+            border-radius: 5px;                /* Abgerundete Ecken */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Dezenter Schatten für den 3D-Effekt */
         }
-        /* Chat-Bereich: max Höhe und Scroll */
-        .chat-box {
-            max-height: 300px;
-            overflow-y: auto;
+
+        /* Header-Zellen */
+        th {
+            background-color: #f8f9fa;         /* Heller Hintergrund für die Header */
+            text-align: left;                  /* Text linksbündig */
+            padding: 1rem;                     /* Polsterung in den Headerzellen */
+            font-weight: bold;                 /* Fettdruck für die Überschriften */
+        }
+
+        /* Body-Zellen */
+        td {
+            vertical-align: middle;            /* Zentriert den Inhalt vertikal */
+            padding: 0.75rem;                  /* Polsterung in den Zellen */
+        }
+
+        /* Hover-Effekt für Zeilen */
+        tbody tr:hover {
+            background-color: #f1f1f1;         /* Heller Hintergrund bei Hover */
+        }
+
+        /* Stil für den "Beitreten"-Button */
+        .room-list button {
+            background-color: #0d6efd;         /* Blaues Button-Design */
+            color: #fff;                       /* Weißer Text */
+            border: none;
+            padding: 0.5rem 1rem;              /* Polsterung im Button */
+            border-radius: 3px;                /* Abgerundete Ecken */
+            cursor: pointer;
+            transition: background-color 0.2s;  /* Weicher Übergang beim Hover */
+        }
+
+        /* Hover-Effekt für den Button */
+        .room-list button:hover {
+            background-color: #0b5ed7;         /* Dunkleres Blau beim Hover */
+        }
+        /* Stil für die Fehlermeldung */
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            display: none; /* Anfangs ausgeblendet */
         }
     </style>
 </head>
@@ -31,22 +69,36 @@
     <!-- Lobby-Ansicht -->
     <section id="lobby-view">
         <h2>Lobby</h2>
-        <div class="mb-3">
-            <h4>Aktive Räume:</h4>
-            <p class="room-list"></p>
-        </div>
         <form class="form-create-room d-flex gap-2">
             <input type="text" id="roomName" class="form-control" placeholder="Raumname" required>
             <input type="text" id="category" class="form-control" placeholder="Kategorie" required>
             <input type="number" id="questionCount" class="form-control" placeholder="Anzahl Fragen" required>
             <button type="submit" class="btn btn-success">Raum erstellen</button>
         </form>
+        <div id="error-message" class="error-message mt-3"></div>
+
+        <div class="mt-3">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th scope="col">Raumname</th>
+                    <th scope="col">Kategorie</th>
+                    <th scope="col">Anzahl Fragen</th>
+                    <th scope="col">Beitreten</th>
+                </tr>
+                </thead>
+                <tbody class="room-list">
+                <!-- Hier werden die Räume dynamisch per JavaScript eingefügt -->
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <!-- Raum-Ansicht (initial ausgeblendet) -->
     <section id="room-view" class="d-none">
         <h2 id="room-title"></h2>
         <button id="start-quiz" class="btn btn-primary">Quiz Starten</button>
+        <button id="leave-room" class="btn btn-danger">Raum verlassen</button>
 
         <!-- Chat-Bereich -->
         <div class="chat-section mt-3">
@@ -60,9 +112,12 @@
                 <button type="submit" class="btn btn-primary">Senden</button>
             </form>
         </div>
+        <div class="user-section mt-2">
+            <p class="user-list"></p>
+        </div>
 
         <!-- Quiz-Anzeige -->
-        <div id="question-display" class="alert alert-info mt-3"></div>
+        <div id="question-display" class="mt-3"></div>
         <div id="answer-display" class="d-flex flex-wrap gap-2 mt-2"></div>
         <div id="score-display" class="mt-3"></div>
     </section>
