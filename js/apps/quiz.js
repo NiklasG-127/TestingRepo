@@ -153,6 +153,7 @@ socket.on('userList', ({ users }) => {
 });
 
 socket.on('roomList', ({ rooms }) => {
+    console.log(rooms);
     showRooms(rooms);
 });
 
@@ -170,17 +171,17 @@ function showUsers(users) {
 }
 
 function showRooms(rooms) {
-    roomList.textContent = '';
-    if (rooms) {
-        roomList.innerHTML = '<em>Active Rooms:</em>';
-        rooms.forEach((room, i) => {
-            roomList.textContent += ` ${room}`;
-            if (rooms.length > 1 && i !== rooms.length - 1) {
-                roomList.textContent += ",";
-            }
+    roomList.innerHTML = '<em>Active Rooms:</em><ul>';
+    if (rooms && rooms.length > 0) {
+        rooms.forEach(room => {
+            roomList.innerHTML += `<li>${room}</li>`;
         });
+    } else {
+        roomList.innerHTML += '<li>Keine aktiven Räume</li>';
     }
+    roomList.innerHTML += '</ul>';
 }
+
 
 socket.on('question', (data)=> {
     const {question_id, question} = data
