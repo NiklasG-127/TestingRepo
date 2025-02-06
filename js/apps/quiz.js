@@ -28,7 +28,6 @@ const msgForm = document.querySelector('.form-msg');
 const msgInput = document.getElementById('message');
 const chatDisplay = document.querySelector('.chat-display');
 
-const msgInput = document.querySelector('#message');
 // const chatRoom = document.querySelector('#room');
 // const activity = document.querySelector('.activity');
 // const usersList = document.querySelector('.user-list');
