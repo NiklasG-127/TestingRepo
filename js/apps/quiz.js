@@ -98,8 +98,6 @@ function enterRoom(e) {
     }
 }
 
-document.querySelector('.form-room')
-    .addEventListener('submit', createRoom);
 document.querySelector('.form-msg')
     .addEventListener('submit', sendMessage);
 document.querySelector('.form-join')
