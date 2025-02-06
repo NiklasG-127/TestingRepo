@@ -98,9 +98,8 @@ function enterRoom(e) {
     }
 }
 
-document.querySelector('.form-msg')
-    .addEventListener('submit', sendMessage);
-//document.querySelector('.form-join').addEventListener('submit', enterRoom);
+document.querySelector('.form-msg').addEventListener('submit', sendMessage);
+document.querySelector('.form-join').addEventListener('submit', enterRoom);
 
 msgInput.addEventListener('keypress', () => {
     const username = getUsernameFromToken();
@@ -146,17 +145,17 @@ socket.on("activity", (name) => {
     }, 3000);
 });
 
-// User- und Raum-Listen aktualisieren
+/*// User- und Raum-Listen aktualisieren
 socket.on('userList', ({ users }) => {
     showUsers(users);
-});
+});*/
 
 socket.on('roomList', ({ rooms }) => {
     console.log(rooms);
     showRooms(rooms);
 });
 
-function showUsers(users) {
+/*function showUsers(users) {
     usersList.textContent = '';
     if (users) {
         usersList.innerHTML = `<em>Users in ${chatRoom.value}:</em>`;
@@ -167,7 +166,7 @@ function showUsers(users) {
             }
         });
     }
-}
+}*/
 
 function showRooms(rooms) {
     roomList.innerHTML = '<em>Active Rooms:</em><ul>';
