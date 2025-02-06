@@ -29,7 +29,7 @@ const msgInput = document.getElementById('message');
 const chatDisplay = document.querySelector('.chat-display');
 
 // const chatRoom = document.querySelector('#room');
-// const activity = document.querySelector('.activity');
+const activity = document.querySelector('.activity');
 // const usersList = document.querySelector('.user-list');
 const roomList = document.querySelector('.room-list');
 // const chatDisplay = document.querySelector('.chat-display');
