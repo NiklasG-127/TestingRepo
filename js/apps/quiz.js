@@ -49,7 +49,7 @@ createRoomForm.addEventListener('submit', (e) => {
     if (!roomName || !category || !questionCount) return;
 
     // Sende alle Daten an das Backend: Raum, Token, Kategorie und Frageanzahl
-    socket.emit('enterRoom', {
+    socket.emit('createRoom', {
         room: roomName,
         token: token,
         category: category,
@@ -100,8 +100,7 @@ function enterRoom(e) {
 
 document.querySelector('.form-msg')
     .addEventListener('submit', sendMessage);
-document.querySelector('.form-join')
-    .addEventListener('submit', enterRoom);
+//document.querySelector('.form-join').addEventListener('submit', enterRoom);
 
 msgInput.addEventListener('keypress', () => {
     const username = getUsernameFromToken();
