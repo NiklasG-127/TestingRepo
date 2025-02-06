@@ -7,7 +7,7 @@ const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
 const lobbyView = document.getElementById('lobby-view');
 const roomView = document.getElementById('room-view');
 const roomTitle = document.getElementById('room-title');
-const roomListElement = document.querySelector('.room-list');
+/*const roomListElement = document.querySelector('.room-list');*/
 
 //Elemente fürs Raumerstellen formular in Lobby
 const roomNameInput = document.getElementById('roomName')
@@ -31,7 +31,7 @@ const chatDisplay = document.querySelector('.chat-display');
 // const chatRoom = document.querySelector('#room');
 // const activity = document.querySelector('.activity');
 // const usersList = document.querySelector('.user-list');
-// const roomList = document.querySelector('.room-list');
+const roomList = document.querySelector('.room-list');
 // const chatDisplay = document.querySelector('.chat-display');
 //
 // const categoryInput = document.querySelector('#category');
