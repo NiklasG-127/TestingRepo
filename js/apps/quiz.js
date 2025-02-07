@@ -80,6 +80,7 @@ createRoomForm.addEventListener('submit', (e) => {
     roomView.classList.remove('d-none');
     roomTitle.textContent = `Raum: ${roomName}`;
     leaveRoomBtn.classList.remove('d-none');
+    chatDisplay.innerHTML = '';
 });
 
 
@@ -127,6 +128,7 @@ function enterRoom(roomName) {
     startQuizBtn.classList.remove('d-none');
     roomView.classList.remove('d-none');
     roomTitle.textContent = `Raum: ${roomName}`;
+    chatDisplay.innerHTML = '';
 }
 
 socket.on('listOfCategories', (data) => {
