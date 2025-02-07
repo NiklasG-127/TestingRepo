@@ -71,7 +71,9 @@
         <h2>Lobby</h2>
         <form class="form-create-room d-flex gap-2">
             <input type="text" id="roomName" class="form-control" placeholder="Raumname" required>
-            <input type="text" id="category" class="form-control" placeholder="Kategorie" required>
+            <select id="categorySelect" class="form-control" required>
+                <option value="" disabled selected>Kategorie auswählen</option>
+            </select>
             <input type="number" id="questionCount" class="form-control" placeholder="Anzahl Fragen" required>
             <button type="submit" class="btn btn-success">Raum erstellen</button>
         </form>

@@ -11,7 +11,7 @@ const roomTitle = document.getElementById('room-title');
 
 //Elemente fürs Raumerstellen formular in Lobby
 const roomNameInput = document.getElementById('roomName')
-const categoryInput = document.getElementById('category');
+const categoryInput = document.getElementById('categorySelect');
 const questionCountInput = document.getElementById('questionCount');
 const createRoomForm = document.querySelector('.form-create-room');
 
@@ -45,7 +45,7 @@ createRoomForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const roomName = roomNameInput.value.trim();
-    const category = categoryInput.value.trim();
+    const category = categoryInput.value
     const questionCount = questionCountInput.value.trim();
 
     let errorText = '';
@@ -129,6 +129,11 @@ function enterRoom(roomName) {
     roomTitle.textContent = `Raum: ${roomName}`;
 }
 
+socket.on('listOfCategories', (data) => {
+    showCategories(data)
+})
+
+
 
 document.querySelector('.form-msg').addEventListener('submit', sendMessage);
 //document.querySelector('.form-join').addEventListener('submit', enterRoom);
@@ -184,6 +189,7 @@ socket.on('userList', ({ users }) => {
 
 socket.on('roomList', ({ rooms }) => {
     showRooms(rooms);
+    console.log(rooms);
 });
 
 function showUsers(users) {
@@ -249,6 +255,24 @@ function showRooms(rooms) {
         tr.appendChild(td);
         roomList.appendChild(tr);
     }
+}
+
+function showCategories(categories) {
+    const select = document.getElementById('categorySelect');
+    if (!select) {
+        console.error("Das Element mit der ID 'categorySelect' wurde nicht gefunden.");
+        return;
+    }
+
+    // Platzhalter erhalten und restliche Optionen entfernen
+    select.innerHTML = '<option value="" disabled selected>Kategorie auswählen</option>';
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        select.appendChild(option);
+    });
 }
 
 
