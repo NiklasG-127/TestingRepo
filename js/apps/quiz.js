@@ -35,10 +35,14 @@ const chatDisplay = document.querySelector('.chat-display');
 const activity = document.querySelector('.activity');
 const usersList = document.querySelector('.user-list');
 const roomList = document.querySelector('.room-list');
+const chatSection = document.querySelector('.chat-section');
 // const chatDisplay = document.querySelector('.chat-display');
 // const categoryInput = document.querySelector('#category');
 // const questionCountInput = document.querySelector('#questionCount');
 const errorMessage = document.getElementById('error-message');
+
+const questionSection = document.querySelector('.question-container');
+const chatQuizDisplay = document.querySelector('.chatQuizDisplay');
 
 //Create Room
 createRoomForm.addEventListener('submit', (e) => {
@@ -114,6 +118,16 @@ leaveRoomBtn.addEventListener('click', () => {
 socket.on('leftRoom',()=>{
     lobbyView.classList.remove('d-none');
     roomView.classList.add('d-none');
+    chatSection.classList.remove('float-end')
+    startQuizBtn.classList.remove('d-none');
+    scoreDisplay.innerHTML = '';
+    scoreDisplay.classList.remove('col-md-8');
+    scoreDisplay.classList.add('d-none');
+    questionSection.classList.add('d-none');
+
+    chatSection.classList.remove('col-md-4');
+    questionSection.classList.remove('col-md-8');
+
 })
 
 function enterRoom(roomName) {
@@ -281,6 +295,15 @@ function showCategories(categories) {
 socket.on('question', (data)=> {
     startQuizBtn.classList.add('d-none');
     leaveRoomBtn.classList.add('d-none');
+
+
+    questionSection.classList.remove('d-none');
+
+
+    chatSection.classList.add('col-md-4');
+    questionSection.classList.add('col-md-8');
+
+
     const {question_id, question} = data
     console.log(data)
     const questionDisplay = document.getElementById('question-display')
@@ -303,9 +326,12 @@ socket.on('answers', (data) => {
         answerDisplay.innerHTML = ''
         data.forEach(answer => {
             const answerElement = document.createElement('button')
-            answerElement.textContent = `Antwort: ${answer.answer}`
+            answerElement.textContent = answer.answer;
+            answerElement.classList.add('btn', 'btn-primary','p-2','px-4')
+
             answerElement.setAttribute('data-answer-id', answer.answer_id)
             answerElement.setAttribute('data-question-id', answer.question_id)
+
             answerElement.addEventListener('click', (event) => {
                 const playerAnswer = event.target.getAttribute('data-answer-id');
                 const question_id = event.target.getAttribute('data-question-id');
@@ -338,6 +364,9 @@ socket.on('quizOver', (data) => {
     leaveRoomBtn.classList.remove('d-none');
     questionDisplay.textContent = '';
     answerDisplay.textContent = '';
+    questionSection.classList.add('d-none');
+    scoreDisplay.classList.add('col-md-8');
+    scoreDisplay.classList.remove('d-none');
 });
 //Test Comment
 socket.on('failedToken', ()=>{

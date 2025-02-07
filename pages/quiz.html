@@ -163,27 +163,30 @@
         <button id="start-quiz" class="btn btn-primary">Quiz Starten</button>
         <button id="leave-room" class="btn btn-danger">Raum verlassen</button>
 
-        <!-- Chat-Bereich -->
-        <div class="chat-section mt-3">
-            <div class="chat-box border rounded p-3 bg-white">
-                <ul class="chat-display list-unstyled mb-0"></ul>
+        <div class="chatQuizDisplay row">
+            <!-- Quiz-Anzeige -->
+            <div class="question-container col-md-8 bg-white shadow-lg rounded p-4 text-center d-none">
+                <div id="question-display" class="mt-3"></div>
+                <div id="answer-display" class="d-flex flex-wrap justify-content-center gap-2 mt-2"></div>
             </div>
-            <form class="form-msg d-flex gap-2 mt-2">
-                <input type="text" id="message" class="form-control" placeholder="Deine Nachricht" required>
-                <button type="submit" class="btn btn-primary">Senden</button>
-            </form>
-            <p class="user-list mt-2"></p>
-            <p class="activity text-muted"></p>
+            <div id="score-display" class="mt-3 d-none"></div>
 
-        </div>
-        <div class="user-section mt-2">
-            <p class="user-list"></p>
+            <!-- Chat-Bereich -->
+            <div class="chat-section mt-3">
+                <div class="chat-box border rounded p-3 bg-white">
+                    <ul class="chat-display list-unstyled mb-0"></ul>
+                </div>
+                <form class="form-msg d-flex gap-2 mt-2">
+                    <input type="text" id="message" class="form-control" placeholder="Deine Nachricht" required>
+                    <button type="submit" class="btn btn-primary">Senden</button>
+                </form>
+                <p class="user-list mt-2"></p>
+                <p class="activity text-muted"></p>
+            </div>
         </div>
 
-        <!-- Quiz-Anzeige -->
-        <div id="question-display" class="mt-3"></div>
-        <div id="answer-display" class="d-flex flex-wrap gap-2 mt-2"></div>
-        <div id="score-display" class="mt-3"></div>
+
+
     </section>
 </main>
 </body>
