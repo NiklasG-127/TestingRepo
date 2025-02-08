@@ -352,22 +352,26 @@ socket.on('evaluatedAnswer', (data)=>{
 })
 
 
-socket.on('quizOver', (data) => {
-    const scoreDisplay = document.getElementById('score-display');
-    if (scoreDisplay) {
-        data.forEach(u => {
-            const scoreElement = document.createElement('div');
-            scoreElement.textContent = `Name: ${u.name} Score: ${u.score}`;
-            scoreDisplay.appendChild(scoreElement);
-        });
-    }
-    leaveRoomBtn.classList.remove('d-none');
-    questionDisplay.textContent = '';
-    answerDisplay.textContent = '';
-    questionSection.classList.add('d-none');
-    scoreDisplay.classList.add('col-md-8');
-    scoreDisplay.classList.remove('d-none');
-});
+socket.on('quizOver',
+    (data) => {
+        console.log('recieved data:', data)
+        const scoreDisplay = document.getElementById('score-display');
+        if (scoreDisplay) {
+            data.sort((a, b) => b.score - a.score);
+            console.log('sorted data:', data)
+            data.forEach(u => {
+                const scoreElement = document.createElement('div');
+                scoreElement.textContent = `Name: ${u.name} Score: ${u.score}`;
+                scoreDisplay.appendChild(scoreElement);
+            });
+        }
+        leaveRoomBtn.classList.remove('d-none');
+        questionDisplay.textContent = '';
+        answerDisplay.textContent = '';
+        questionSection.classList.add('d-none');
+        scoreDisplay.classList.add('col-md-8');
+        scoreDisplay.classList.remove('d-none');
+    });
 //Test Comment
 socket.on('failedToken', ()=>{
     window.location.href = '../index.html';
