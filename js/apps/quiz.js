@@ -371,6 +371,7 @@ socket.on('quizOver', (data) => {
 //Test Comment
 socket.on('failedToken', ()=>{
     window.location.href = '../index.html';
+    sessionStorage.removeItem('token');
 })
 
 
