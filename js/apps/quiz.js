@@ -14,6 +14,8 @@ const roomNameInput = document.getElementById('roomName')
 const categoryInput = document.getElementById('categorySelect');
 const questionCountInput = document.getElementById('questionCount');
 const createRoomForm = document.querySelector('.form-create-room');
+const timerEnabledInput = document.getElementById('timerEnabled');
+const timerInput = document.getElementById('timerInput');
 
 //Element des 'Quiz Starten' Button in Raum view
 const startQuizBtn = document.getElementById('start-quiz');
@@ -44,6 +46,51 @@ const errorMessage = document.getElementById('error-message');
 const questionSection = document.querySelector('.question-container');
 const chatQuizDisplay = document.querySelector('.chatQuizDisplay');
 
+const timerEnterOption = document.getElementById('timerEnterOption');
+
+timerInput.disabled = true;
+
+
+
+let timer;
+let timerActive = false;
+
+function startTimer(duration, question_id) {
+    stopTimer();
+
+    let timeLeft = duration;
+    timerActive = true;
+    updateTimerDisplay(timeLeft);
+
+    timer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay(timeLeft);
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            timerActive = false;
+            socket.emit('submitAnswer', {
+                playerAnswer: null,
+                question_id: question_id
+            });
+        }
+    },1000)
+}
+
+function stopTimer(){
+    if(timerActive){
+        clearInterval(timer);
+        timerActive = false;
+    }
+    updateTimerDisplay(0)
+}
+
+function updateTimerDisplay(time) {
+    const timerElement = document.getElementById('timer-display');
+    if (timerElement) {
+        timerElement.textContent = `Verbleibenen Zeit: ${time}`
+    }
+}
 //Create Room
 createRoomForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -51,6 +98,8 @@ createRoomForm.addEventListener('submit', (e) => {
     const roomName = roomNameInput.value.trim();
     const category = categoryInput.value
     const questionCount = questionCountInput.value.trim();
+    const timerEnabled = timerEnabledInput.checked;
+    const timerTime = timerInput.value.trim();
 
     let errorText = '';
     if (questionCount < 1) {
@@ -58,6 +107,10 @@ createRoomForm.addEventListener('submit', (e) => {
     }
 
     if (!roomName || !category || !questionCount) return;
+
+    if(timerEnabled && !timerTime) {
+        return;
+    }
 
     if (errorText) {
         errorMessage.style.display = 'block'
@@ -71,13 +124,16 @@ createRoomForm.addEventListener('submit', (e) => {
         room: roomName,
         token: token,
         category: category,
-        questionCount: questionCount
+        questionCount: questionCount,
+        timerEnabled: timerEnabled,
+        timer: timerTime,
     });
 
     // Formularfelder leeren
     roomNameInput.value = '';
     categoryInput.value = '';
     questionCountInput.value = '';
+    timerEnabledInput.value = '';
 
     // Wechsel zur Raum-Ansicht: Lobby ausblenden, Raum anzeigen
     lobbyView.classList.add('d-none');
@@ -86,6 +142,17 @@ createRoomForm.addEventListener('submit', (e) => {
     leaveRoomBtn.classList.remove('d-none');
     chatDisplay.innerHTML = '';
 });
+
+timerEnabledInput.addEventListener('change', function () {
+    if (this.checked) {
+        timerEnterOption.classList.remove('hidden');
+        timerInput.disabled = false;
+    }else{
+        timerEnterOption.classList.add('hidden');
+        timerInput.disabled = true;
+        timerInput.value = '';
+    }
+})
 
 
 function sendMessage(e) {
@@ -304,12 +371,24 @@ socket.on('question', (data)=> {
     questionSection.classList.add('col-md-8');
 
 
-    const {question_id, question} = data
+    const {question_id, question, timerEnabled, timerDuration} = data
     console.log(data)
     const questionDisplay = document.getElementById('question-display')
+
     if(questionDisplay){
         questionDisplay.textContent = '';
         questionDisplay.textContent = `Frage: ${question}`
+        if (timerEnabled) {
+            const parsedDuration = Number(timerDuration)
+            console.log('Timer gestartet mit Dauer:', parsedDuration);
+
+            if (parsedDuration > 0) {
+                stopTimer();
+                startTimer(parsedDuration, question_id);
+            } else {
+                console.warn('Timer-Dauer ungültig:', timerDuration);
+            }
+        }
     }
     if (question_id !== undefined) {
         socket.emit('askForAnswers', { question_id });
@@ -333,6 +412,9 @@ socket.on('answers', (data) => {
             answerElement.setAttribute('data-question-id', answer.question_id)
 
             answerElement.addEventListener('click', (event) => {
+                if (timerActive){
+                    stopTimer();
+                }
                 const playerAnswer = event.target.getAttribute('data-answer-id');
                 const question_id = event.target.getAttribute('data-question-id');
                 console.log('Antwort-ID:', playerAnswer, 'Frage-ID:', question_id); // Logge die IDs

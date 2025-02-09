@@ -135,14 +135,32 @@
     <!-- Lobby-Ansicht -->
     <section id="lobby-view">
         <h2>Lobby</h2>
-        <form class="form-create-room d-flex gap-2">
-            <input type="text" id="roomName" class="form-control" placeholder="Raumname" required>
-            <select id="categorySelect" class="form-control" required>
-                <option value="" disabled selected>Kategorie auswählen</option>
-            </select>
-            <input type="number" id="questionCount" class="form-control" placeholder="Anzahl Fragen" required>
-            <button type="submit" class="btn btn-success">Raum erstellen</button>
+        <form class="form-create-room row g-2 align-items-center">
+            <div class="col-12 col-md">
+                <input type="text" id="roomName" class="form-control" placeholder="Raumname" required>
+            </div>
+            <div class="col-12 col-md">
+                <select id="categorySelect" class="form-control" required>
+                    <option value="" disabled selected>Kategorie auswählen</option>
+                </select>
+            </div>
+            <div class="col-12 col-md">
+                <input type="number" id="questionCount" class="form-control" placeholder="Anzahl Fragen" required>
+            </div>
+
+            <!-- Timer -->
+            <div class="form-check form-check-inline col-auto">
+                <input type="checkbox" id="timerEnabled" class="form-check-input" value="true">
+                <label class="form-check-label" for="timerEnabled">Timer</label>
+            </div>
+
+            <div id="timerEnterOption" class="col-12 col-md hidden">
+                <input type="number" id="timerInput" class="form-control" placeholder="Timer in s">
+            </div>
+
+            <button type="submit" class="btn btn-success col-auto">Raum erstellen</button>
         </form>
+
         <div id="error-message" class="error-message mt-3"></div>
 
         <div class="mt-3">
@@ -171,6 +189,7 @@
         <div class="chatQuizDisplay row">
             <!-- Quiz-Anzeige -->
             <div class="question-container col-md-8 bg-white shadow-lg rounded p-4 text-center mx-auto d-none">
+                <div id="timer-display"></div>
                 <div class="box-around-question-answer d-flex flex-column align-items-center">
                     <div id="question-display" class="mt-3 fw-bold fs-4"></div>
                     <div id="answer-display" class="d-grid gap-3 mt-3" style="grid-template-columns: repeat(2, 1fr); width: 100%; max-width: 400px;"></div>
