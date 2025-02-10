@@ -26,7 +26,8 @@ const leaveRoomBtn = document.getElementById('leave-room');
 // Anzeigeelemente für Fragen, Antworten und Punktestand
 const questionDisplay = document.getElementById('question-display');
 const answerDisplay = document.getElementById('answer-display');
-const scoreDisplay = document.getElementById('score-display');
+const scoreDisplay = document.querySelector('.score-display');
+const scoreboard = document.querySelector('.scoreboard');
 
 // DOM-Elemente für den Chat im Raum
 const msgForm = document.querySelector('.form-msg');
@@ -105,6 +106,11 @@ createRoomForm.addEventListener('submit', (e) => {
     if (questionCount < 1) {
         errorText = 'Anzahl der Fragen muss mindestens 1 sein'
     }
+    if (timerEnabled){
+        if (timerTime < 1){
+            errorText = 'Zeit darf nicht 0 oder negativ sein'
+        }
+    }
 
     if (!roomName || !category || !questionCount) return;
 
@@ -141,6 +147,9 @@ createRoomForm.addEventListener('submit', (e) => {
     roomTitle.textContent = `Raum: ${roomName}`;
     leaveRoomBtn.classList.remove('d-none');
     chatDisplay.innerHTML = '';
+    scoreboard.classList.add('d-none');
+    chatSection.classList.remove('col-md-4');
+
 });
 
 timerEnabledInput.addEventListener('change', function () {
@@ -189,7 +198,7 @@ socket.on('leftRoom',()=>{
     startQuizBtn.classList.remove('d-none');
     scoreDisplay.innerHTML = '';
     scoreDisplay.classList.remove('col-md-8');
-    scoreDisplay.classList.add('d-none');
+    scoreboard.classList.add('d-none');
     questionSection.classList.add('d-none');
 
     chatSection.classList.remove('col-md-4');
@@ -210,7 +219,17 @@ function enterRoom(roomName) {
     roomView.classList.remove('d-none');
     roomTitle.textContent = `Raum: ${roomName}`;
     chatDisplay.innerHTML = '';
+
+    // Scoreboard zurücksetzen:
+    scoreboard.classList.add('d-none');
+    const scoreDisplay = document.querySelector('.score-display');
+    if (scoreDisplay) {
+        scoreDisplay.innerHTML = '';
+    }
+
+    chatSection.classList.remove('col-md-4');
 }
+
 
 socket.on('listOfCategories', (data) => {
     showCategories(data)
@@ -434,26 +453,54 @@ socket.on('evaluatedAnswer', (data)=>{
 })
 
 
-socket.on('quizOver',
-    (data) => {
-        console.log('recieved data:', data)
-        const scoreDisplay = document.getElementById('score-display');
-        if (scoreDisplay) {
-            data.sort((a, b) => b.score - a.score);
-            console.log('sorted data:', data)
-            data.forEach(u => {
-                const scoreElement = document.createElement('div');
-                scoreElement.textContent = `Name: ${u.name} Score: ${u.score}`;
-                scoreDisplay.appendChild(scoreElement);
-            });
-        }
-        leaveRoomBtn.classList.remove('d-none');
-        questionDisplay.textContent = '';
-        answerDisplay.textContent = '';
-        questionSection.classList.add('d-none');
-        scoreDisplay.classList.add('col-md-8');
-        scoreDisplay.classList.remove('d-none');
-    });
+socket.on('quizOver', (data) => {
+    console.log('received data:', data);
+
+    // Hole das <tbody> aktuell neu
+    const scoreDisplay = document.querySelector('.score-display');
+    if (!scoreDisplay) return;
+
+    // Alte Einträge löschen
+    scoreDisplay.innerHTML = '';
+
+    // Falls data vorhanden ist
+    if (data && data.length > 0) {
+        data.sort((a, b) => b.score - a.score);
+        console.log('sorted data:', data);
+        let rank = 0;
+        data.forEach(u => {
+            rank++;
+            const tr = document.createElement('tr');
+
+            const tdRank = document.createElement('td');
+            tdRank.textContent = rank;
+            const tdName = document.createElement('td');
+            tdName.textContent = u.name;
+            const tdScore = document.createElement('td');
+            tdScore.textContent = u.score;
+
+            tr.appendChild(tdRank);
+            tr.appendChild(tdName);
+            tr.appendChild(tdScore);
+
+            scoreDisplay.appendChild(tr);
+        });
+    } else {
+        console.warn('Keine Daten für das Scoreboard erhalten');
+    }
+
+    // Scoreboard sichtbar machen
+    scoreboard.classList.add('col-md-8');
+    scoreboard.classList.remove('d-none');
+    leaveRoomBtn.classList.remove('d-none');
+
+    // Bereiche für Frage und Antwort leeren und ausblenden
+    questionDisplay.textContent = '';
+    answerDisplay.textContent = '';
+    questionSection.classList.add('d-none');
+});
+
+
 //Test Comment
 socket.on('failedToken', ()=>{
     window.location.href = '../index.html';
