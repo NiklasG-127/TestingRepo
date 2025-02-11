@@ -1,5 +1,6 @@
 //Todo
 //Evaluate Answer Needs to be worked on
+//Add current question and more info to room screen
 const token = sessionStorage.getItem('token');
 const socket = io.connect('http://localhost:3000/quizAPI', {
     query: {token}
