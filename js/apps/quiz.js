@@ -1,6 +1,7 @@
 //Todo
 //Evaluate Answer Needs to be worked on
 //Add current question and more info to room screen
+//Add a no active Room avalible when a room exists but isnt open
 const token = sessionStorage.getItem('token');
 const socket = io.connect('http://localhost:3000/quizAPI', {
     query: {token}
@@ -322,6 +323,7 @@ socket.on('answers', (data) => {
     if (answerDisplay) {
         // shows all answers with a forEach loop
         answerDisplay.innerHTML = ''
+        shuffleArray(data)
         data.forEach(answer => {
             const answerElement = document.createElement('button')
             answerElement.textContent = answer.answer;
@@ -575,4 +577,11 @@ function enterRoom(roomName) {
     }
     // makes chat fullscreen
     chatSection.classList.remove('col-md-4');
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
 }
