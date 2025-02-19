@@ -1,5 +1,5 @@
 const token = sessionStorage.getItem('token');
-const socket = io.connect('https://niklasg-127.github.io/quizAPI', {
+const socket = io.connect('https://testingbackendrepo.onrender.com/quizAPI', {
     query: {token}
 });
 
