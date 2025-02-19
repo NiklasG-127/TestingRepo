@@ -44,7 +44,7 @@ export const About = {
             const token = sessionStorage.getItem('token');
 
             // API-Aufruf zur PostgreSQL-Datenbank über dein Backend
-            fetch('http://localhost:3000/api/data', {
+            fetch('https://niklasg-127.github.io/api/data', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Token im Authorization-Header senden
